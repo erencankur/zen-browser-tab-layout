@@ -17,7 +17,22 @@ class ZenStartup {
 
   init() {
     this.openWatermark();
+    this.#updateTabsLayoutAttribute();
     this.#zenInitBrowserLayout();
+  }
+
+  get #isHorizontalTabsLayout() {
+    return (
+      Services.prefs.getStringPref("zen.tabs.layout", "vertical") ===
+      "horizontal"
+    );
+  }
+
+  #updateTabsLayoutAttribute() {
+    document.documentElement.setAttribute(
+      "zen-tabs-layout",
+      this.#isHorizontalTabsLayout ? "horizontal" : "vertical"
+    );
   }
 
   get #shouldUseWatermark() {
@@ -94,7 +109,10 @@ class ZenStartup {
       this.closeWatermark();
       document
         .getElementById("tabbrowser-arrowscrollbox")
-        .setAttribute("orient", "vertical");
+        .setAttribute(
+          "orient",
+          this.#isHorizontalTabsLayout ? "horizontal" : "vertical"
+        );
       this.isReady = true;
       this.promiseInitializedResolve();
       delete this.promiseInitializedResolve;

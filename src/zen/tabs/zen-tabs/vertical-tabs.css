@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+@media -moz-pref("zen.tabs.vertical") {
+
 /* ==========================================================================
    Initial Setup & Layout Changes for Vertical Tabs
    ========================================================================== */
@@ -1379,4 +1381,5 @@
   :root[zen-right-side="true"] & {
     left: calc(-1 * var(--zen-toolbox-padding));
   }
+}
 }

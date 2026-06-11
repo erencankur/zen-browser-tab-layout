@@ -1160,6 +1160,13 @@ window.gZenVerticalTabsManager = {
   initializePreferences(updateEvent) {
     XPCOMUtils.defineLazyPreferenceGetter(
       this,
+      "_prefsTabsLayout",
+      "zen.tabs.layout",
+      "vertical",
+      updateEvent
+    );
+    XPCOMUtils.defineLazyPreferenceGetter(
+      this,
       "_prefsVerticalTabs",
       "zen.tabs.vertical",
       true,
@@ -1266,15 +1273,30 @@ window.gZenVerticalTabsManager = {
       const topButtons = document.getElementById("zen-sidebar-top-buttons");
       const isCompactMode =
         gZenCompactModeManager.preference && !forCustomizableMode;
-      const isVerticalTabs = this._prefsVerticalTabs || forCustomizableMode;
+      const isHorizontalTabs =
+        this._prefsTabsLayout === "horizontal" && !forCustomizableMode;
+      const isVerticalTabs =
+        forCustomizableMode ||
+        this._prefsTabsLayout === "vertical" ||
+        (this._prefsTabsLayout !== "horizontal" && this._prefsVerticalTabs);
       const isSidebarExpanded = this._prefsSidebarExpanded || !isVerticalTabs;
       const isRightSide = this._prefsRightSide && isVerticalTabs;
       const isSingleToolbar =
-        ((this._prefsUseSingleToolbar && isVerticalTabs && isSidebarExpanded) ||
-          !isVerticalTabs) &&
+        this._prefsUseSingleToolbar &&
+        isVerticalTabs &&
+        isSidebarExpanded &&
         !forCustomizableMode &&
         !this.hidesTabsToolbar;
       const titlebar = document.getElementById("titlebar");
+
+      document.documentElement.setAttribute(
+        "zen-tabs-layout",
+        isHorizontalTabs ? "horizontal" : "vertical"
+      );
+      this.navigatorToolbox.setAttribute(
+        "zen-tabs-layout",
+        isHorizontalTabs ? "horizontal" : "vertical"
+      );
 
       gBrowser.tabContainer.setAttribute(
         "orient",

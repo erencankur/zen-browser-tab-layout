@@ -289,6 +289,9 @@ class nsZenWorkspaces {
   }
 
   get activeWorkspaceStrip() {
+    if (this.horizontalTabsEnabled) {
+      return gBrowser.tabContainer.arrowScrollbox;
+    }
     if (!this._hasInitializedTabsStrip) {
       return gBrowser.tabContainer.arrowScrollbox;
     }
@@ -296,6 +299,9 @@ class nsZenWorkspaces {
   }
 
   get pinnedTabsContainer() {
+    if (this.horizontalTabsEnabled) {
+      return document.getElementById("pinned-tabs-container");
+    }
     if (!this.workspaceEnabled || !this._hasInitializedTabsStrip) {
       return document.getElementById("pinned-tabs-container");
     }
@@ -307,6 +313,9 @@ class nsZenWorkspaces {
   }
 
   get activeScrollbox() {
+    if (this.horizontalTabsEnabled) {
+      return gBrowser.tabContainer.arrowScrollbox;
+    }
     return (
       this.activeWorkspaceElement?.scrollbox ??
       gBrowser.tabContainer.arrowScrollbox
@@ -635,6 +644,13 @@ class nsZenWorkspaces {
     );
   }
 
+  get horizontalTabsEnabled() {
+    return (
+      Services.prefs.getStringPref("zen.tabs.layout", "vertical") ===
+      "horizontal"
+    );
+  }
+
   get isPrivateWindow() {
     return PrivateBrowsingUtils.isWindowPrivate(window);
   }
@@ -766,6 +782,17 @@ class nsZenWorkspaces {
     } catch (e) {
       console.error("gZenWorkspaces: Error initializing theme picker", e);
     }
+    if (this.horizontalTabsEnabled) {
+      return (async () => {
+        await this.#waitForPromises();
+        this.#hasInitialized = true;
+        this._resolveInitialized();
+        delete this._resolveInitialized;
+        window.dispatchEvent(
+          new CustomEvent("AfterWorkspacesSessionRestore", { bubbles: true })
+        );
+      })();
+    }
     this.#initializeTabsStripSections();
     this.#initializeEmptyTab();
     return (async () => {
@@ -798,7 +825,11 @@ class nsZenWorkspaces {
   }
 
   async selectStartPage() {
-    if (!this.workspaceEnabled || gZenUIManager.testingEnabled) {
+    if (
+      this.horizontalTabsEnabled ||
+      !this.workspaceEnabled ||
+      gZenUIManager.testingEnabled
+    ) {
       return;
     }
     await this.promiseInitialized;
@@ -924,7 +955,11 @@ class nsZenWorkspaces {
   }
 
   handleInitialTab(tab, isEmpty) {
-    if (gZenUIManager.testingEnabled || !this.workspaceEnabled) {
+    if (
+      this.horizontalTabsEnabled ||
+      gZenUIManager.testingEnabled ||
+      !this.workspaceEnabled
+    ) {
       return;
     }
     if (isEmpty) {
@@ -1493,6 +1528,15 @@ class nsZenWorkspaces {
   }
 
   moveTabsToWorkspace(tabs, workspaceID) {
+    if (this.horizontalTabsEnabled) {
+      for (let tab of tabs) {
+        if (!tab.hasAttribute("zen-essential")) {
+          tab.setAttribute("zen-workspace-id", workspaceID);
+        }
+      }
+      gBrowser.tabContainer._invalidateCachedTabs();
+      return true;
+    }
     for (let tab of tabs) {
       const workspaceContainer = this.workspaceElement(workspaceID);
       const container = tab.pinned
@@ -1576,7 +1620,7 @@ class nsZenWorkspaces {
   }
 
   async changeWorkspace(workspace, ...args) {
-    if (!this.workspaceEnabled) {
+    if (!this.workspaceEnabled || this.horizontalTabsEnabled) {
       return workspace;
     }
     this.#currentSpaceSwitchContext.animations.forEach(animation => {
@@ -1663,6 +1707,9 @@ class nsZenWorkspaces {
   }
 
   makeSureEmptyTabIsFirst() {
+    if (this.horizontalTabsEnabled) {
+      return;
+    }
     const emptyTab = this._emptyTab;
     if (emptyTab) {
       emptyTab.setAttribute("zen-workspace-id", this.activeWorkspace);
@@ -2707,6 +2754,7 @@ class nsZenWorkspaces {
 
   onPinnedTabsResize(entries, forAnimation = false) {
     if (
+      this.horizontalTabsEnabled ||
       document.documentElement.hasAttribute("inDOMFullscreen") ||
       !this._hasInitializedTabsStrip ||
       (this._organizingWorkspaceStrip && !forAnimation) ||
@@ -2782,7 +2830,7 @@ class nsZenWorkspaces {
     const isEssential = tab.getAttribute("zen-essential") === "true";
     const workspaceID = tab.getAttribute("zen-workspace-id");
 
-    if (!this.workspaceEnabled || isEssential) {
+    if (!this.workspaceEnabled || this.horizontalTabsEnabled || isEssential) {
       return;
     }
 
@@ -2826,14 +2874,15 @@ class nsZenWorkspaces {
 
   async onLocationChange(event) {
     let tab = event.target;
-    this.#changeToEmptyTab();
     if (
+      this.horizontalTabsEnabled ||
       !this.workspaceEnabled ||
       this.#inChangingWorkspace ||
       this._isClosingWindow
     ) {
       return;
     }
+    this.#changeToEmptyTab();
 
     if (tab.hasAttribute("zen-glance-tab")) {
       // Extract from parent node so we are not selecting the wrong (current) tab
@@ -3096,6 +3145,9 @@ class nsZenWorkspaces {
 
   // Session restore functions
   get allStoredTabs() {
+    if (this.horizontalTabsEnabled) {
+      return gBrowser.tabs;
+    }
     if (this._allStoredTabs) {
       return this._allStoredTabs;
     }

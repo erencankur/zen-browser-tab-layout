@@ -1,0 +1,140 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@media not -moz-pref("zen.tabs.vertical") {
+  #browser {
+    -moz-box-orient: vertical;
+    flex-direction: column;
+  }
+
+  #navigator-toolbox {
+    order: 0;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  #zen-appcontent-wrapper {
+    order: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  #zen-tabbox-wrapper {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  #zen-sidebar-splitter,
+  #zen-sidebar-top-buttons,
+  #zen-sidebar-foot-buttons,
+  #zen-essentials,
+  .zen-current-workspace-indicator,
+  zen-workspace {
+    display: none !important;
+  }
+
+  #titlebar,
+  #TabsToolbar,
+  #TabsToolbar-customization-target,
+  #tabbrowser-tabs {
+    flex-direction: row;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #titlebar {
+    min-height: var(--tab-min-height);
+  }
+
+  #TabsToolbar,
+  #TabsToolbar-customization-target,
+  #tabbrowser-tabs,
+  #tabbrowser-arrowscrollbox,
+  #zen-tabs-wrapper {
+    min-height: var(--tab-min-height);
+    max-height: var(--tab-min-height);
+  }
+
+  #TabsToolbar {
+    padding-inline: 8px;
+  }
+
+  #TabsToolbar-customization-target {
+    align-items: stretch;
+  }
+
+  #zen-tabs-wrapper {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #tabbrowser-tabs {
+    flex: 1 1 auto;
+  }
+
+  #tabbrowser-arrowscrollbox {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #tabbrowser-arrowscrollbox::part(scrollbox) {
+    align-items: stretch;
+  }
+
+  .tabbrowser-tab {
+    min-height: var(--tab-min-height);
+  }
+
+  .tabbrowser-tab:not([pinned]) {
+    min-width: 120px;
+    max-width: 240px;
+  }
+
+  .tabbrowser-tab .tab-content,
+  .tabbrowser-tab .tab-label-container {
+    min-width: 0;
+  }
+
+  .tabbrowser-tab .tab-close-button {
+    display: flex;
+  }
+
+  .tabbrowser-tab:not([visuallyselected]):not(:hover) .tab-close-button {
+    visibility: hidden;
+  }
+
+  #tabbrowser-arrowscrollbox-periphery {
+    display: flex;
+    align-items: stretch;
+  }
+
+  #tabs-newtab-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--tab-min-height);
+  }
+
+  #zen-appcontent-navbar-wrapper {
+    display: flex;
+    width: 100%;
+  }
+
+  #zen-appcontent-navbar-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #nav-bar,
+  #PersonalToolbar {
+    width: 100%;
+  }
+}
