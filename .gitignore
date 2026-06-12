@@ -4,6 +4,7 @@
 
 .dotbuild/
 engine/
+engine.partial*/
 firefox-*/
 node_modules/
 .surfer/
